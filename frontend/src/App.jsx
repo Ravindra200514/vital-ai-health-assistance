@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { Activity, Dumbbell, User, LogOut, MessageSquare, Droplets, Flame, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // --- SHARED COMPONENTS --- //
 
@@ -165,10 +165,12 @@ function LandingPage() {
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
     try {
         const res = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
@@ -181,10 +183,10 @@ function Login() {
             localStorage.setItem('name', data.name);
             navigate('/dashboard');
         } else {
-            alert(data.message);
+            setError(data.message || "Invalid credentials.");
         }
     } catch (err) {
-        alert("Failed to communicate with API.");
+        setError("Failed to communicate with the server.");
     }
   };
 
@@ -194,6 +196,7 @@ function Login() {
         <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-main)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
           <Activity color="var(--primary-color)" /> Login
         </h2>
+        {error && <div style={{ background: 'rgba(244, 63, 94, 0.1)', color: 'var(--danger-color)', padding: '0.8rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', textAlign: 'center', border: '1px solid rgba(244, 63, 94, 0.3)' }}>{error}</div>}
         <form onSubmit={handleLogin}>
           <div className="form-group">
             <label className="form-label">Email Address</label>
@@ -215,10 +218,14 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
     try {
         const res = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
@@ -227,13 +234,13 @@ function Register() {
         });
         const data = await res.json();
         if (res.status === 201) {
-            alert(data.message);
-            navigate('/login');
+            setSuccess(data.message);
+            setTimeout(() => navigate('/login'), 1500);
         } else {
-            alert(data.message);
+            setError(data.message || 'Registration failed.');
         }
     } catch (err) {
-        alert("Failed to communicate with API.");
+        setError("Failed to communicate with the server.");
     }
   };
 
@@ -243,6 +250,8 @@ function Register() {
         <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-main)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
           <User color="var(--primary-color)" /> Create Account
         </h2>
+        {error && <div style={{ background: 'rgba(244, 63, 94, 0.1)', color: 'var(--danger-color)', padding: '0.8rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', textAlign: 'center', border: '1px solid rgba(244, 63, 94, 0.3)' }}>{error}</div>}
+        {success && <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '0.8rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', textAlign: 'center', border: '1px solid rgba(16, 185, 129, 0.3)' }}>{success}</div>}
         <form onSubmit={handleRegister}>
           <div className="form-group">
             <label className="form-label">Full Name</label>
