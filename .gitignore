@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+.env
+__pycache__/
+venv/
+env/
+*.db
+*.sqlite3
+vital_ai.db
